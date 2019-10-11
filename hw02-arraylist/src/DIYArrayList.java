@@ -105,6 +105,7 @@ public class DIYArrayList<E> implements List<E> {
         indexOfRemoved = index;
         E removedObject = getByIndex(index);
         realign();
+        nextElementPointer--;
         return removedObject;
     }
 
@@ -176,6 +177,7 @@ public class DIYArrayList<E> implements List<E> {
                         && (nextCalled || previousCalled)
                 ) {
                     DIYArrayList.this.remove(lastReturnedIndex);
+                    currentIndex--;
                     removeCalled = true;
                 } else {
                     throw new IllegalStateException();
@@ -205,7 +207,7 @@ public class DIYArrayList<E> implements List<E> {
 
     @Override
     public boolean isEmpty() {
-        throw new UnsupportedOperationException();
+        return size() == 0;
     }
 
     @Override

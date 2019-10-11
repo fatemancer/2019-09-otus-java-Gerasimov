@@ -2,6 +2,7 @@ import com.google.common.collect.Comparators;
 
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Iterator;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -24,8 +25,25 @@ public class Main {
     private static void testServiceMethods() {
         Stream.of(
                 testResize(),
-                testRemove()
+                testRemove(),
+                testIterateAndRemove()
         ).forEach(System.out::println);
+    }
+
+    private static Result testIterateAndRemove() {
+        final String NAME = "Removal while iterating works";
+        try {
+            DIYArrayList<Integer> collectionToClear = provideRandomIntegers(25);
+            Iterator<Integer> i = collectionToClear.listIterator();
+
+            while (i.hasNext()) {
+                i.next();
+                i.remove();
+            }
+            return new Result(collectionToClear.isEmpty(), NAME);
+        } catch (Exception e) {
+            return new Result(false, NAME, e);
+        }
     }
 
     private static Result testSort() {
@@ -140,7 +158,7 @@ public class Main {
             if (isOk) {
                 return String.format("Test %s is OK", testName);
             } else {
-                return String.format("Test %s is FAILED: %s", testName, message.toString());
+                return String.format("Test %s is FAILED: %s", testName, message == null ? "" : message.toString());
             }
         }
     }
