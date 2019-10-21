@@ -1,3 +1,5 @@
+package ru.otus;
+
 import java.util.*;
 
 public class DIYArrayList<E> implements List<E> {

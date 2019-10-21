@@ -10,6 +10,7 @@
 
     <modules>
         <module>hw01-maven</module>
+        <module>hw02-arraylist</module>
     </modules>
 
     <packaging>pom</packaging>
