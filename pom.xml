@@ -11,6 +11,7 @@
     <modules>
         <module>hw01-maven</module>
         <module>hw02-arraylist</module>
+        <module>hw04-bytecode</module>
         <module>hw05-test</module>
     </modules>
 
