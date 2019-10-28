@@ -1,6 +1,6 @@
 package ru.otus;
 
-import ru.otus.dynamic.ExampleFactory;
+import ru.otus.dynamic.MagicLoggingInjectedFactory;
 
 public class Main {
 
@@ -10,14 +10,21 @@ public class Main {
     }
 
     private static void testBytecodeAnnotations() {
+        System.out.println("Bytecode annotations: ");
         ExampleInterface exampleOne = new Example();
         System.out.println("Stuff done: " + exampleOne.doStuff(1, 2, 3));
     }
 
     private static void testAspectAnnotations() {
-        ExampleInterface exampleOne = ExampleFactory.getExample();
-        ExampleInterface exampleTwo = ExampleFactory.getExample();
+        System.out.println("Aspect annotations: ");
+        ExampleInterface exampleOne = MagicLoggingInjectedFactory.getInstance(Example.class, ExampleInterface.class);
         System.out.println("Stuff done: " + exampleOne.doStuff(1, 2));
-        System.out.println("Stuff done: " + exampleTwo.doStuff(1, 3));
+        System.out.println(MagicLoggingInjectedFactory.getInstance(Example.class, ExampleInterface.class).doStuff(3, 4));
+
+        ExampleInterface withArguments = MagicLoggingInjectedFactory.getInstance(
+                ExampleWithArgs.class,
+                ExampleInterface.class,
+                90);
+        System.out.println(withArguments.doStuff(5,5));
     }
 }

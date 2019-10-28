@@ -14,6 +14,6 @@ public class Example implements ExampleInterface {
     @MagicBytecodeLogging
     @Override
     public int doStuff(int first, int second, int third) {
-        return first + second;
+        return first + second + third;
     }
 }
