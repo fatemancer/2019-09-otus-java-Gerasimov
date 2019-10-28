@@ -11,8 +11,8 @@ public class Agent {
     private static final int API = Opcodes.ASM7;
 
     public static void premain(String args, Instrumentation instrumentation) {
-        System.out.println("============================================");
-        System.out.println("#Called premain method, injecting logger...#");
+        System.out.println("=============================================");
+        System.out.println("# Called premain method, injecting logger...#");
         instrumentation.addTransformer(new ClassFileTransformer() {
             @Override
             public byte[] transform(
@@ -28,8 +28,8 @@ public class Agent {
                 return classfileBuffer;
             }
         });
-        System.out.println("#Injection done.                           #");
-        System.out.println("============================================");
+        System.out.println("# Injection done.                           #");
+        System.out.println("=============================================");
         System.out.println();
     }
 
