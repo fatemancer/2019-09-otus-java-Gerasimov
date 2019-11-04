@@ -8,5 +8,6 @@ public class Main {
         TestFramework.run(MainTest.class);
         TestFramework.run(SupplementaryTest.class);
         TestFramework.run(EvenMoreSupplementaryTest.class);
+        TestFramework.run(EvenMoreSupplementaryTestV2.class);
     }
 }
