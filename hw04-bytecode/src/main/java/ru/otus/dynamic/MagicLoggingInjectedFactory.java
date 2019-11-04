@@ -1,5 +1,7 @@
 package ru.otus.dynamic;
 
+import ru.otus.annotation.MagicAspectLogging;
+
 import java.lang.reflect.*;
 import java.util.Arrays;
 import java.util.HashSet;
@@ -10,20 +12,22 @@ public class MagicLoggingInjectedFactory {
 
     private static final String ANSI_RESET = "\u001B[0m";
     private static final String ANSI_GREEN = "\u001B[32m";
-
-    static Set<Method> patchedMethods = new HashSet<>();
+    private static final Set<String> PATCHED_METHODS = new HashSet<>();
 
     @SuppressWarnings("unchecked")
-    public static <T, U> U getInstance(Class<? extends T> className, Class<? extends U> desiredInterface, Object... constructorParams) {
+    public static <T, U> U getInstance(
+            Class<? extends T> className,
+            Class<? extends U> desiredInterface,
+            Object... constructorParams) {
 
         validateInterfaces(className.getInterfaces(), desiredInterface);
 
-        Set<Method> methodsWithLogging = Arrays.stream(desiredInterface.getMethods())
-                .filter(method -> Arrays.stream(method.getAnnotations())
-                        .anyMatch(a -> a.annotationType().getSimpleName().equals("MagicAspectLogging")))
+        Set<String> methodsWithLogging = Arrays.stream(className.getMethods())
+                .filter(MagicLoggingInjectedFactory::isMagicLogging)
+                .map(MagicLoggingInjectedFactory::extractNameAndParams)
                 .collect(Collectors.toSet());
 
-        patchedMethods.addAll(methodsWithLogging);
+        PATCHED_METHODS.addAll(methodsWithLogging);
 
         try {
             return (U) Proxy.newProxyInstance(
@@ -35,6 +39,15 @@ public class MagicLoggingInjectedFactory {
             throw new IllegalArgumentException("Error while instantiating object, cause", e);
         }
 
+    }
+
+    private static String extractNameAndParams(Method method) {
+        return method.getName() + Arrays.toString(method.getParameters());
+    }
+
+    private static boolean isMagicLogging(Method method) {
+        return Arrays.stream(method.getAnnotations())
+                .anyMatch(a -> a.annotationType().equals(MagicAspectLogging.class));
     }
 
     private static <U> void validateInterfaces(Class<?>[] interfaces, Class<? extends U> desiredInterface) {
@@ -91,7 +104,7 @@ public class MagicLoggingInjectedFactory {
 
         @Override
         public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
-            if (patchedMethods.contains(method)) {
+            if (PATCHED_METHODS.contains(extractNameAndParams(method))) {
                 printArgs(args);
             }
             return method.invoke(instance, args);
