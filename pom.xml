@@ -13,6 +13,7 @@
         <module>hw02-arraylist</module>
         <module>hw04-bytecode</module>
         <module>hw05-test</module>
+        <module>hw06-atm</module>
     </modules>
 
     <packaging>pom</packaging>
