@@ -1,4 +1,4 @@
-package ru.otus.test;
+package ru.otus.test.basic;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
@@ -8,10 +8,12 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import ru.otus.atm.ATM;
 import ru.otus.atm.ATMFactory;
-import ru.otus.atm.Cassette;
-import ru.otus.atm.Note;
+import ru.otus.atm.CassetteHolder;
+import ru.otus.atm.currency.Dollar;
+import ru.otus.atm.currency.Rouble;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @DisplayName("Ошибочные сценарии")
 class Negative {
@@ -26,12 +28,12 @@ class Negative {
     @DisplayName("Снять больше чем есть")
     void withdrawTooMuch() {
         atm.accept(ImmutableList.of(
-                Note.TEN,
-                Note.TEN,
-                Note.TEN,
-                Note.TEN,
-                Note.TEN,
-                Note.FIFTY));
+                Rouble.TEN,
+                Rouble.TEN,
+                Rouble.TEN,
+                Rouble.TEN,
+                Rouble.TEN,
+                Rouble.FIFTY));
         IllegalArgumentException e = Assertions.assertThrows(
                 IllegalArgumentException.class,
                 () -> atm.give(1_000_000L)
@@ -48,7 +50,8 @@ class Negative {
         );
         assertEquals(
                 "Sum must be possible to be combined of: " +
-                        "[THOUSAND_FIVE, THOUSAND_TWO, THOUSAND_ONE, HUNDRED_FIVE, HUNDRED_TWO, HUNDRED_ONE, FIFTY, TEN]",
+                        "[THOUSAND_FIVE, THOUSAND_TWO, THOUSAND_ONE, " +
+                        "HUNDRED_FIVE, HUNDRED_TWO, HUNDRED_ONE, FIFTY, TEN]",
                 e.getMessage()
         );
     }
@@ -56,10 +59,10 @@ class Negative {
     @Test
     @DisplayName("Снять сумму, не собираемую из имеющихся купюр (но теоретически возможную)")
     void withdrawUnsplitable() {
-        Cassette cassette = new Cassette(ImmutableMap.of(
-                Note.TEN, 7,
-                Note.HUNDRED_TWO, 2,
-                Note.THOUSAND_FIVE, 1
+        CassetteHolder cassette = new CassetteHolder(ImmutableMap.of(
+                Rouble.TEN, 7,
+                Rouble.HUNDRED_TWO, 2,
+                Rouble.THOUSAND_FIVE, 1
         ));
         atm = ATMFactory.create(cassette);
         IllegalArgumentException e = Assertions.assertThrows(
@@ -90,5 +93,20 @@ class Negative {
                 () -> atm.give(0L)
         );
         assertEquals("Sum must be positive: 0", e.getMessage());
+    }
+
+    @Test
+    @DisplayName("Положить разные валюты в кассету")
+    void mixedATMFails() {
+
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> ATMFactory.create(new CassetteHolder(
+                        ImmutableMap.of(
+                                Dollar.HUNDRED_ONE, 3,
+                                Rouble.HUNDRED_FIVE, 3
+                        ))),
+                "java.lang.IllegalArgumentException: Only one currency per ATM supported, " +
+                        "provided: [class ru.otus.atm.currency.Dollar, class ru.otus.atm.currency.Rouble]");
     }
 }

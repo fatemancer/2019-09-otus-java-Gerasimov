@@ -1,6 +1,7 @@
-package ru.otus.atm;
+package ru.otus.atm.currency;
 
-public enum Note {
+public enum Rouble implements AbstractNote {
+
     THOUSAND_FIVE(5_000),
     THOUSAND_TWO(2_000),
     THOUSAND_ONE(1_000),
@@ -11,26 +12,30 @@ public enum Note {
     TEN(10),
     ;
 
-    public static Note[] nominals = Note.values();
+    public static Rouble[] nominals = Rouble.values();
     private int nominal;
 
-    Note(int i) {
+    Rouble(int i) {
         this.nominal = i;
     }
 
-    public static Note first() {
-        return Note.THOUSAND_FIVE;
+    @Override
+    public Rouble first() {
+        return Rouble.THOUSAND_FIVE;
     }
 
+    @Override
     public int getNominal() {
         return nominal;
     }
 
-    Note next() {
+    @Override
+    public Rouble next() {
         return nominals[(this.ordinal()+1) % nominals.length];
     }
 
-    boolean hasNext() {
+    @Override
+    public boolean hasNext() {
         return this.ordinal() < nominals.length - 1;
     }
 
