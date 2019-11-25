@@ -7,7 +7,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import ru.otus.atm.ATM;
-import ru.otus.atm.ATMFactory;
 import ru.otus.atm.CassetteHolder;
 import ru.otus.atm.currency.Dollar;
 import ru.otus.atm.currency.Rouble;
@@ -21,7 +20,7 @@ class Negative {
 
     @BeforeEach
     void setUp() {
-        atm = ATMFactory.create();
+        atm = ATM.Factory.create();
     }
 
     @Test
@@ -64,7 +63,7 @@ class Negative {
                 Rouble.HUNDRED_TWO, 2,
                 Rouble.THOUSAND_FIVE, 1
         ));
-        atm = ATMFactory.create(cassette);
+        atm = ATM.Factory.create(cassette);
         IllegalArgumentException e = Assertions.assertThrows(
                 IllegalArgumentException.class,
                 () -> atm.give(5080L)
@@ -101,7 +100,7 @@ class Negative {
 
         assertThrows(
                 IllegalArgumentException.class,
-                () -> ATMFactory.create(new CassetteHolder(
+                () -> ATM.Factory.create(new CassetteHolder(
                         ImmutableMap.of(
                                 Dollar.HUNDRED_ONE, 3,
                                 Rouble.HUNDRED_FIVE, 3

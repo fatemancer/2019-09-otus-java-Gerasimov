@@ -6,7 +6,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import ru.otus.atm.ATM;
-import ru.otus.atm.ATMFactory;
 import ru.otus.atm.CassetteHolder;
 import ru.otus.atm.currency.AbstractNote;
 import ru.otus.atm.currency.Dollar;
@@ -23,7 +22,7 @@ class Positive {
 
     @BeforeEach
     void setUp() {
-        atm = ATMFactory.create();
+        atm = ATM.Factory.create();
     }
 
     @Test
@@ -106,11 +105,11 @@ class Positive {
     @Test
     @DisplayName("Создать два банкомата для разных валют")
     void foreignCurrencyTest() {
-        ATM atmRouble = ATMFactory.create(new CassetteHolder(
+        ATM atmRouble = ATM.Factory.create(new CassetteHolder(
                 ImmutableMap.of(
                         Rouble.HUNDRED_FIVE, 3
                 )));
-        ATM atmDollar = ATMFactory.create(new CassetteHolder(
+        ATM atmDollar = ATM.Factory.create(new CassetteHolder(
                 ImmutableMap.of(
                         Dollar.HUNDRED_ONE, 7
                 )));
