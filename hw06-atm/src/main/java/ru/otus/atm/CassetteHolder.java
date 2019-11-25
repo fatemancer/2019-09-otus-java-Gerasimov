@@ -10,11 +10,11 @@ import java.util.Map;
 public class CassetteHolder {
 
     private static final Comparator<Cassette> COMPARATOR = Comparator.comparing(Cassette::getNominalValue).reversed();
-    private List<Cassette> cassettes = new ArrayList<>();
+    private final List<Cassette> cassettes = new ArrayList<>();
 
     public CassetteHolder(Map<AbstractNote, Integer> notes) {
         for (Map.Entry<AbstractNote, Integer> entry : notes.entrySet()) {
-            cassettes.add(new Cassette(entry.getKey(), entry.getValue()));
+            cassettes.add(new CassetteImpl(entry.getKey(), entry.getValue()));
         }
         cassettes.sort(COMPARATOR);
     }
@@ -53,5 +53,12 @@ public class CassetteHolder {
         return "CassetteHolder{" +
                 "cassettes=" + cassettes +
                 '}';
+    }
+
+    public AbstractNote getCurrency() {
+        return this.getCassettes().stream()
+                .map(Cassette::getCurrentNominal)
+                .findFirst()
+                .orElseThrow(() -> new IllegalStateException("ATM passed validation without any currency"));
     }
 }

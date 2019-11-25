@@ -16,8 +16,8 @@ public class ATMImpl implements ATM {
     private static final Logger log = LoggerFactory.getLogger(ATMImpl.class);
     private static final Comparator<AbstractNote> COMPARATOR = Comparator.comparing(AbstractNote::getNominal).reversed();
 
-    private CassetteHolder cassetteHolder;
-    private List<BiConsumer<Long, Validator.Context>> validators = ImmutableList.of(
+    private final CassetteHolder cassetteHolder;
+    private final List<BiConsumer<Long, Validator.Context>> validators = ImmutableList.of(
             Validator::nonNull,
             Validator::positive,
             Validator::nonOverflowing,
@@ -35,7 +35,7 @@ public class ATMImpl implements ATM {
 
     @Override
     public Map<AbstractNote, Integer> give(Long amount) {
-        Validator.Context context = new Validator.Context(cassetteHolder.sum());
+        Validator.Context context = new Validator.Context(cassetteHolder.sum(), cassetteHolder.getCurrency());
         validators.forEach(v -> v.accept(amount, context));
         return split(amount);
     }

@@ -12,31 +12,20 @@ public enum Rouble implements AbstractNote {
     TEN(10),
     ;
 
-    public static Rouble[] nominals = Rouble.values();
-    private int nominal;
+    public static final Rouble[] nominals = Rouble.values();
+    private final int nominal;
 
     Rouble(int i) {
         this.nominal = i;
     }
 
     @Override
-    public Rouble first() {
-        return Rouble.THOUSAND_FIVE;
+    public AbstractNote[] getNominals() {
+        return nominals;
     }
 
     @Override
     public int getNominal() {
         return nominal;
     }
-
-    @Override
-    public Rouble next() {
-        return nominals[(this.ordinal()+1) % nominals.length];
-    }
-
-    @Override
-    public boolean hasNext() {
-        return this.ordinal() < nominals.length - 1;
-    }
-
 }

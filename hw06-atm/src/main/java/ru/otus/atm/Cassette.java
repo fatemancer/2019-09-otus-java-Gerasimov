@@ -1,56 +1,17 @@
 package ru.otus.atm;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import ru.otus.atm.currency.AbstractNote;
 
-import java.util.HashMap;
-import java.util.Map;
+interface Cassette {
+    void add(AbstractNote n, int amount);
 
-public class Cassette {
+    void remove(AbstractNote n, int amount);
 
-    private static final Logger log = LoggerFactory.getLogger(Cassette.class);
+    Long sum();
 
-    private Map<AbstractNote, Integer> holder;
+    AbstractNote getCurrentNominal();
 
-    Cassette(AbstractNote note, int amount) {
-        this();
-        holder.put(note, amount);
-    }
+    int getNominalValue();
 
-    private Cassette() {
-        holder = new HashMap<>();
-    }
-
-    void add(AbstractNote n, int amount) {
-        holder.merge(n, 1, (cur, upd) -> cur + amount);
-    }
-
-    void remove(AbstractNote n, int amount) {
-        holder.merge(n, 0, (cur, upd) -> cur - amount);
-    }
-
-    Long sum() {
-        return holder.entrySet().stream().mapToLong(entry -> entry.getKey().getNominal() * entry.getValue()).sum();
-    }
-
-    AbstractNote getCurrentNominal() {
-        return holder.keySet().stream().findFirst().orElse(null);
-    }
-
-    int getNominalValue() {
-        return getCurrentNominal().getNominal();
-    }
-
-    int getNotesForCurrentNominal() {
-        return holder.values().stream().findFirst().orElse(0);
-    }
-
-    @Override
-    public String toString() {
-        return "Cassette{" +
-                "holder=" + holder +
-                ", currency=" + getCurrentNominal().getClass().getSimpleName() +
-                '}';
-    }
+    int getNotesForCurrentNominal();
 }

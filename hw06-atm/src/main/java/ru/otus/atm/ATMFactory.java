@@ -10,8 +10,6 @@ import java.util.stream.Collectors;
 
 public class ATMFactory {
 
-    public static Class<? extends AbstractNote> DEFAULT_CURRENCY = Rouble.class;
-
     public static ATM create() {
         return defaultATM();
     }

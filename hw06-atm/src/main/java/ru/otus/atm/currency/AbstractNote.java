@@ -2,11 +2,7 @@ package ru.otus.atm.currency;
 
 public interface AbstractNote {
 
-    AbstractNote first();
+    AbstractNote[] getNominals();
 
     int getNominal();
-
-    AbstractNote next();
-
-    boolean hasNext();
 }

@@ -1,5 +1,6 @@
 package ru.otus.atm;
 
+import ru.otus.atm.currency.AbstractNote;
 import ru.otus.atm.currency.Rouble;
 
 import java.util.Arrays;
@@ -28,7 +29,9 @@ class Validator {
     }
 
     static void quickDivisorCheck(Long amount, Context context) {
-        if (Arrays.stream(Rouble.nominals).map(Rouble::getNominal).noneMatch(n -> amount % n == 0)) {
+        if (Arrays.stream(context.getNoteInATM().getNominals())
+                .map(AbstractNote::getNominal)
+                .noneMatch(n -> amount % n == 0)) {
             String error = String.format("Sum must be possible to be combined of: %s", Arrays.toString(Rouble.values()));
             throw new IllegalArgumentException(error);
         }
@@ -36,14 +39,20 @@ class Validator {
 
     static class Context {
 
-        Long available;
+        final Long available;
+        final AbstractNote noteInATM;
 
-        Context(Long available) {
+        Context(Long available, AbstractNote noteInATM) {
             this.available = available;
+            this.noteInATM = noteInATM;
         }
 
         Long getAvailable() {
             return available;
+        }
+
+        public AbstractNote getNoteInATM() {
+            return noteInATM;
         }
     }
 }
