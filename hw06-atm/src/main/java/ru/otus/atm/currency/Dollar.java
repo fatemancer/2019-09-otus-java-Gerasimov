@@ -11,7 +11,6 @@ public enum Dollar implements AbstractNote {
     ONE(1)
     ;
 
-    public static final Dollar[] nominals = Dollar.values();
     private final int nominal;
 
     Dollar(int i) {
@@ -20,7 +19,7 @@ public enum Dollar implements AbstractNote {
 
     @Override
     public AbstractNote[] getNominals() {
-        return nominals;
+        return Dollar.values();
     }
 
     @Override

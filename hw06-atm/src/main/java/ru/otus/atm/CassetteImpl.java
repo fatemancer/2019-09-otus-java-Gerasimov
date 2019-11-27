@@ -2,40 +2,40 @@ package ru.otus.atm;
 
 import ru.otus.atm.currency.AbstractNote;
 
-import java.util.HashMap;
-import java.util.Map;
-
 public class CassetteImpl implements Cassette {
 
-    private final Map<AbstractNote, Integer> holder;
+    private final AbstractNote note;
+    private int notesAmount;
 
     CassetteImpl(AbstractNote note, int amount) {
-        this();
-        holder.put(note, amount);
-    }
-
-    private CassetteImpl() {
-        holder = new HashMap<>();
+        this.note = note;
+        notesAmount = amount;
     }
 
     @Override
-    public void add(AbstractNote n, int amount) {
-        holder.merge(n, 1, (cur, upd) -> cur + amount);
+    public void add(int amount) {
+        this.notesAmount += amount;
     }
 
     @Override
-    public void remove(AbstractNote n, int amount) {
-        holder.merge(n, 0, (cur, upd) -> cur - amount);
+    public void remove(int amount) {
+        if (amount < 0) {
+            throw new IllegalArgumentException(
+                    String.format("Trying to remove %s notes, %s notes exist. Also, this exception means ATM request" +
+                            "validator is faulty", amount, notesAmount)
+            );
+        }
+        this.notesAmount -= amount;
     }
 
     @Override
     public Long sum() {
-        return holder.entrySet().stream().mapToLong(entry -> entry.getKey().getNominal() * entry.getValue()).sum();
+        return (long) (note.getNominal() * notesAmount);
     }
 
     @Override
     public AbstractNote getCurrentNominal() {
-        return holder.keySet().stream().findFirst().orElse(null);
+        return note;
     }
 
     @Override
@@ -45,13 +45,14 @@ public class CassetteImpl implements Cassette {
 
     @Override
     public int getNotesForCurrentNominal() {
-        return holder.values().stream().findFirst().orElse(0);
+        return notesAmount;
     }
 
     @Override
     public String toString() {
-        return "Cassette{" +
-                "holder=" + holder +
+        return "CassetteImpl{" +
+                "note=" + note +
+                ", notesAmount=" + notesAmount +
                 ", currency=" + getCurrentNominal().getClass().getSimpleName() +
                 '}';
     }

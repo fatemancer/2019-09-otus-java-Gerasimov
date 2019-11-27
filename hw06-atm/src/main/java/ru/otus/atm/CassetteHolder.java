@@ -20,7 +20,7 @@ public class CassetteHolder {
     }
 
     List<Cassette> getCassettes() {
-        return cassettes;
+        return List.copyOf(cassettes);
     }
 
     Long sum() {
@@ -32,7 +32,7 @@ public class CassetteHolder {
         for (Cassette cassette : cassettes) {
             AbstractNote currentNominal = cassette.getCurrentNominal();
             if (result.containsKey(currentNominal)) {
-                cassette.remove(currentNominal, result.get(currentNominal));
+                cassette.remove(result.get(currentNominal));
             }
         }
     }
@@ -42,7 +42,7 @@ public class CassetteHolder {
             AbstractNote currentNominal = cassette.getCurrentNominal();
             for (AbstractNote note : notes) {
                 if (note.equals(currentNominal)) {
-                    cassette.add(note, 1);
+                    cassette.add(1);
                 }
             }
         }

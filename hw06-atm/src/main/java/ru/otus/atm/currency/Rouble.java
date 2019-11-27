@@ -12,7 +12,6 @@ public enum Rouble implements AbstractNote {
     TEN(10),
     ;
 
-    public static final Rouble[] nominals = Rouble.values();
     private final int nominal;
 
     Rouble(int i) {
@@ -21,7 +20,7 @@ public enum Rouble implements AbstractNote {
 
     @Override
     public AbstractNote[] getNominals() {
-        return nominals;
+        return Rouble.values();
     }
 
     @Override
