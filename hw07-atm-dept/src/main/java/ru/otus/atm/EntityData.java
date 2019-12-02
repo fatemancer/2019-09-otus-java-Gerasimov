@@ -15,6 +15,7 @@ public class EntityData {
         this.data = data;
     }
 
+    // PATTERN:builder
     public static class EntityDataBuilder {
         private DataType key;
         private Long id;

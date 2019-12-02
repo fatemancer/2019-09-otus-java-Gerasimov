@@ -12,6 +12,7 @@ public class CassetteHolder implements EntityConstructor {
 
     private static final Comparator<Cassette> COMPARATOR = Comparator.comparing(Cassette::getNominalValue).reversed();
     private final List<Cassette> cassettes = new ArrayList<>();
+    private int currentIndex = 0;
 
     public CassetteHolder(Map<AbstractNote, Integer> notes) {
         for (Map.Entry<AbstractNote, Integer> entry : notes.entrySet()) {
@@ -69,5 +70,21 @@ public class CassetteHolder implements EntityConstructor {
                 Cassette::getCurrentNominal,
                 Cassette::getNotesForCurrentNominal));
         return new CassetteHolder(notes);
+    }
+
+    public boolean hasNext() {
+        return currentIndex != getCassettes().size();
+    }
+
+    public Cassette getNext() {
+        return getCassettes().get(currentIndex);
+    }
+
+    public void next() {
+        currentIndex++;
+    }
+
+    public void reset() {
+        currentIndex = 0;
     }
 }

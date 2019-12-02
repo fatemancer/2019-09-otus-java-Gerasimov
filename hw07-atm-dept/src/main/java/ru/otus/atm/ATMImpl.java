@@ -38,6 +38,8 @@ public class ATMImpl implements ATM {
     @Override
     public Map<AbstractNote, Integer> give(Long amount) {
         Validator.Context context = new Validator.Context(cassetteHolder.sum(), cassetteHolder.getCurrency());
+        // PATTERN:strategy
+        // "Неклассический" вариант с функциональными интерфейсами
         validators.forEach(v -> v.accept(amount, context));
         return split(amount);
     }
@@ -45,13 +47,15 @@ public class ATMImpl implements ATM {
     private Map<AbstractNote, Integer> split(long amount) {
         long rest = amount;
         Map<AbstractNote, Integer> result = new TreeMap<>(COMPARATOR);
-        for (Cassette cassette : cassetteHolder.getCassettes()) {
+        // PATTERN:iterator
+        while (cassetteHolder.hasNext()) {
+            Cassette cassette = cassetteHolder.getNext();
             AbstractNote currentNominal = cassette.getCurrentNominal();
             log.debug("Trying to use {}", currentNominal);
             int notesForCurrentNominal = cassette.getNotesForCurrentNominal();
             while (
                     Math.abs(rest / currentNominal.getNominal()) > 0
-                    && notesForCurrentNominal > 0
+                            && notesForCurrentNominal > 0
             ) {
                 rest -= currentNominal.getNominal();
                 notesForCurrentNominal--;
@@ -63,7 +67,9 @@ public class ATMImpl implements ATM {
                         currentNominal);
                 result.merge(currentNominal, 1, Integer::sum);
             }
+            cassetteHolder.next();
         }
+        cassetteHolder.reset();
         if (rest == 0) {
             seal(result);
             return result;

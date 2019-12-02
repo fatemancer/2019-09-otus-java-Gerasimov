@@ -11,6 +11,7 @@ public class ATMDepartment implements EntityDepartment {
 
     private final ATMFactory atmFactory;
     private final Map<Long, ATM> controlledATM = new HashMap<>();
+    // PATTERN:memento
     private final Map<Long, EntityState<EntityConstructor>> controlledATMStates = new HashMap<>();
     long firstAvailableIndex = 0;
 

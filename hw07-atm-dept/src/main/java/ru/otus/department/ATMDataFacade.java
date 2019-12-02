@@ -8,6 +8,7 @@ import java.math.BigDecimal;
 import java.util.List;
 import java.util.stream.Stream;
 
+// PATTERN:facade
 public class ATMDataFacade {
 
     ATMDepartment atmDepartment;
@@ -19,7 +20,6 @@ public class ATMDataFacade {
     }
 
     public BigDecimal getReserves() {
-        exchangeRateManager.getCurrentRates();
         List<EntityData> rawData = atmDepartment.getRawData();
 
         return rawData.stream()
