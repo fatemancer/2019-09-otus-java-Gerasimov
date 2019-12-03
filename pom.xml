@@ -14,6 +14,7 @@
         <module>hw04-bytecode</module>
         <module>hw05-test</module>
         <module>hw06-atm</module>
+        <module>hw07-atm-dept</module>
     </modules>
 
     <packaging>pom</packaging>
