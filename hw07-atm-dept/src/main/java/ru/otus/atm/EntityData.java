@@ -3,13 +3,13 @@ package ru.otus.atm;
 import java.util.Map;
 import java.util.Objects;
 
-public class EntityData {
+public class EntityData<T extends Entity> {
 
     final DataType key;
     final Long id;
     final Map<String, String> data;
 
-    public EntityData(DataType key, Long id, Map<String, String> data) {
+    public <T extends Entity> EntityData(DataType key, Long id, Map<String, String> data) {
         this.key = key;
         this.id = id;
         this.data = data;
@@ -36,7 +36,7 @@ public class EntityData {
             return this;
         }
 
-        public EntityData build() {
+        public <T> EntityData<? extends T> build() {
             return new EntityData(key, id, data);
         }
     }

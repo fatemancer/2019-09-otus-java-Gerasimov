@@ -14,7 +14,7 @@ import java.util.List;
 
 public interface EntityDepartment {
 
-    List<EntityData> getRawData();
+    List<? extends EntityData<? extends Entity>> getRawData();
 
     void resetEntity(Long id);
 

@@ -48,8 +48,7 @@ public class ATMImpl implements ATM {
         long rest = amount;
         Map<AbstractNote, Integer> result = new TreeMap<>(COMPARATOR);
         // PATTERN:iterator
-        while (cassetteHolder.hasNext()) {
-            Cassette cassette = cassetteHolder.getNext();
+        for (Cassette cassette : cassetteHolder) {
             AbstractNote currentNominal = cassette.getCurrentNominal();
             log.debug("Trying to use {}", currentNominal);
             int notesForCurrentNominal = cassette.getNotesForCurrentNominal();
@@ -67,9 +66,7 @@ public class ATMImpl implements ATM {
                         currentNominal);
                 result.merge(currentNominal, 1, Integer::sum);
             }
-            cassetteHolder.next();
         }
-        cassetteHolder.reset();
         if (rest == 0) {
             seal(result);
             return result;
@@ -90,7 +87,7 @@ public class ATMImpl implements ATM {
     }
 
     @Override
-    public EntityData getData(Long id) {
+    public EntityData<? extends Entity> getData(Long id) {
         return new EntityData.EntityDataBuilder()
                 .setId(id)
                 .setKey(DataType.MONEY)

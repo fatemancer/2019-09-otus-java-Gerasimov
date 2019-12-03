@@ -20,7 +20,7 @@ public class ATMDepartment implements EntityDepartment {
     }
 
     @Override
-    public List<EntityData> getRawData() {
+    public List<? extends EntityData<? extends Entity>> getRawData() {
         return controlledATM.entrySet().stream()
                 .map((entry) -> {
                     var idx = entry.getKey();

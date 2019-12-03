@@ -54,37 +54,37 @@ public class Positive {
 
     @Test
     void saveAndRestoreState() {
-        List<EntityData> initial = atmDepartment.getRawData();
+        List<? extends EntityData<? extends Entity>> initial = atmDepartment.getRawData();
         System.out.println(atmDepartment);
 
         secondATM.give(500L);
-        List<EntityData> current = atmDepartment.getRawData();
+        List<? extends EntityData<? extends Entity>> current = atmDepartment.getRawData();
         System.out.println(atmDepartment);
         Assertions.assertNotEquals(initial, current);
 
         atmDepartment.resetAll();
-        List<EntityData> terminal = atmDepartment.getRawData();
+        List<? extends EntityData<? extends Entity>> terminal = atmDepartment.getRawData();
         System.out.println(atmDepartment);
         Assertions.assertEquals(initial, terminal);
     }
 
     @Test
     void saveAndRestoreStateOfOne() {
-        List<EntityData> initial = atmDepartment.getRawData();
+        List<? extends EntityData<? extends Entity>> initial = atmDepartment.getRawData();
         System.out.println(atmDepartment);
 
         secondATM.give(500L);
-        List<EntityData> firstWithdrawal = atmDepartment.getRawData();
+        List<? extends EntityData<? extends Entity>> firstWithdrawal = atmDepartment.getRawData();
         System.out.println(atmDepartment);
         Assertions.assertNotEquals(initial, firstWithdrawal);
 
         firstATM.give(20000L);
-        List<EntityData> secondWithdrawal = atmDepartment.getRawData();
+        List<? extends EntityData<? extends Entity>> secondWithdrawal = atmDepartment.getRawData();
         Assertions.assertNotEquals(firstWithdrawal, secondWithdrawal);
 
         atmDepartment.resetEntity(0L);
 
-        List<EntityData> terminal = atmDepartment.getRawData();
+        List<? extends EntityData<? extends Entity>> terminal = atmDepartment.getRawData();
         System.out.println(atmDepartment);
         Assertions.assertEquals(firstWithdrawal, terminal);
     }

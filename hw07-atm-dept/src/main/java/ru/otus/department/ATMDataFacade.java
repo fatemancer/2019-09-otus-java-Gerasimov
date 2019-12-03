@@ -1,6 +1,7 @@
 package ru.otus.department;
 
 import ru.otus.atm.DataType;
+import ru.otus.atm.Entity;
 import ru.otus.atm.EntityData;
 import ru.otus.atm.currency.Currency;
 
@@ -20,7 +21,7 @@ public class ATMDataFacade {
     }
 
     public BigDecimal getReserves() {
-        List<EntityData> rawData = atmDepartment.getRawData();
+        List<? extends EntityData<? extends Entity>> rawData = atmDepartment.getRawData();
 
         return rawData.stream()
                 .filter(entityData -> entityData.getKey().equals(DataType.MONEY))

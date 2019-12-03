@@ -2,13 +2,11 @@ package ru.otus.atm;
 
 import ru.otus.atm.currency.AbstractNote;
 
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
-public class CassetteHolder implements EntityConstructor {
+public class CassetteHolder implements EntityConstructor, Iterable<Cassette> {
 
     private static final Comparator<Cassette> COMPARATOR = Comparator.comparing(Cassette::getNominalValue).reversed();
     private final List<Cassette> cassettes = new ArrayList<>();
@@ -72,19 +70,18 @@ public class CassetteHolder implements EntityConstructor {
         return new CassetteHolder(notes);
     }
 
-    public boolean hasNext() {
-        return currentIndex != getCassettes().size();
+    @Override
+    public Iterator<Cassette> iterator() {
+        return getCassettes().iterator();
     }
 
-    public Cassette getNext() {
-        return getCassettes().get(currentIndex);
+    @Override
+    public void forEach(Consumer<? super Cassette> action) {
+        getCassettes().forEach(action);
     }
 
-    public void next() {
-        currentIndex++;
-    }
-
-    public void reset() {
-        currentIndex = 0;
+    @Override
+    public Spliterator<Cassette> spliterator() {
+        return getCassettes().spliterator();
     }
 }

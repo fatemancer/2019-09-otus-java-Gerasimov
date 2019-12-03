@@ -2,7 +2,7 @@ package ru.otus.atm;
 
 public interface Entity {
 
-    EntityData getData(Long id);
+    EntityData<? extends Entity> getData(Long id);
 
     void setState(EntityState<? super EntityConstructor> state);
 
