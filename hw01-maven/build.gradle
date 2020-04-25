@@ -6,6 +6,10 @@ plugins {
     id 'com.github.johnrengelman.shadow'
 }
 
+dependencies {
+    implementation 'com.google.guava:guava'
+}
+
 description = 'hw01-maven'
 
 shadowJar {

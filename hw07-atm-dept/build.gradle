@@ -3,3 +3,11 @@
  */
 
 description = 'hw07-atm-dept'
+
+dependencies {
+    implementation 'com.google.guava:guava'
+    implementation 'org.slf4j:slf4j-api'
+    implementation 'org.slf4j:slf4j-simple'
+    implementation 'org.junit.jupiter:junit-jupiter-api'
+    testRuntime 'org.junit.jupiter:junit-jupiter'
+}
