@@ -5,6 +5,7 @@
 rootProject.name = '2020-03-otus-java-Gerasimov'
 include(':hw01-maven')
 include(':hw02-arraylist')
+include(':hw03-gc')
 include(':hw04-bytecode')
 include(':hw05-test')
 include(':hw06-atm')
