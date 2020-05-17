@@ -23,6 +23,7 @@ allprojects {
     group = 'ru.otus'
 
     repositories {
+        jcenter()
         mavenCentral()
     }
 
