@@ -98,11 +98,11 @@ class TypeHelper {
         return isArray(inputObject) || isCollection(inputObject);
     }
 
-    static boolean isByteOrCharArray(Object parsedValue) {
+    private static boolean isByteOrCharArray(Object parsedValue) {
         return parsedValue instanceof char[] || parsedValue instanceof byte[];
     }
 
-    static JsonValue collapseArray(Object parsedValue) {
+    private static JsonValue collapseArray(Object parsedValue) {
         // поведение консистентно с Jackson
         if (parsedValue instanceof char[]) {
             // https://www.javadoc.io/doc/com.fasterxml.jackson.core/jackson-databind/2.8

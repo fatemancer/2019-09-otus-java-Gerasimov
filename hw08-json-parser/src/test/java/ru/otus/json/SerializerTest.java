@@ -15,9 +15,9 @@ import java.util.Set;
 
 public class SerializerTest {
 
-    SoftAssertions softly = new SoftAssertions();
-    MyMapper myMapper = new MyMapper();
-    ObjectMapper jacksonMapper = new ObjectMapper();
+    private SoftAssertions softly = new SoftAssertions();
+    private MyMapper myMapper = new MyMapper();
+    private ObjectMapper jacksonMapper = new ObjectMapper();
 
     @AfterEach
     void tearDown() {
@@ -101,14 +101,14 @@ public class SerializerTest {
     @Test
     @SneakyThrows
     void privateFieldsTest() {
-        MyMapper privateObliviousMapper = new MyMapper(false, false);
+        MyMapper privateAwareMapper = new MyMapper(false, false);
         ObjectMapper sameJacksonMapper = new ObjectMapper().setVisibility(
                 PropertyAccessor.FIELD,
                 JsonAutoDetect.Visibility.ANY
         );
 
         var testClass = new PrivateFieldClass();
-        softly.assertThat(privateObliviousMapper.convert(testClass)).isEqualTo(sameJacksonMapper.writeValueAsString(
+        softly.assertThat(privateAwareMapper.convert(testClass)).isEqualTo(sameJacksonMapper.writeValueAsString(
                 testClass));
     }
 
