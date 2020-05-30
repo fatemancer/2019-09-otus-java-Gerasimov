@@ -7,11 +7,15 @@ import lombok.SneakyThrows;
 import org.assertj.core.api.SoftAssertions;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 import ru.otus.json.data.*;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.Set;
+import java.util.stream.Stream;
 
 public class SerializerTest {
 
@@ -110,6 +114,27 @@ public class SerializerTest {
         var testClass = new PrivateFieldClass();
         softly.assertThat(privateAwareMapper.convert(testClass)).isEqualTo(sameJacksonMapper.writeValueAsString(
                 testClass));
+    }
+
+    @ParameterizedTest
+    @MethodSource("generateDataForCustomTest")
+    void customTest(Object o){
+        MyMapper mapper = new MyMapper(false, false);
+        System.out.println(mapper.convert(o) + "\n" + jacksonWrite(o));
+        softly.assertThat(mapper.convert(o)).isEqualTo(jacksonWrite(o));
+    }
+
+    private static Stream<Arguments> generateDataForCustomTest() {
+        return Stream.of(
+                Arguments.of(true), Arguments.of(false),
+                Arguments.of((byte)1), Arguments.of((short)2f),
+                Arguments.of(3), Arguments.of(4L), Arguments.of(5f), Arguments.of(6d),
+                Arguments.of("aaa"), Arguments.of('b'),
+                Arguments.of(new byte[] {1, 2, 3}),
+                Arguments.of(new char[] {'a', 'b', 'c'}),
+                Arguments.of(new short[] {4, 5, 6}),
+                Arguments.of(new float[] {10f, 11f, 12f})
+        );
     }
 
     @SneakyThrows

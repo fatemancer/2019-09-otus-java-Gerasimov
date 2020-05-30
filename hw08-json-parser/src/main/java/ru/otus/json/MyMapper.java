@@ -6,35 +6,22 @@ import javax.json.Json;
 import javax.json.JsonArrayBuilder;
 import javax.json.JsonObjectBuilder;
 import javax.json.JsonValue;
+import java.lang.reflect.Array;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
-import java.math.BigDecimal;
-import java.math.BigInteger;
-import java.util.List;
-import java.util.Set;
+import java.util.Collection;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
-import java.util.stream.Collectors;
 
 public class MyMapper {
 
-    //Цель: Научиться сериализовывать объект в json, попрактиковаться в разборе структуры объекта.
-    //Напишите свой json object writer (object to JSON string) аналогичный gson на основе javax.json.
+    // Цель: Научиться сериализовывать объект в json, попрактиковаться в разборе структуры объекта.
+    // Напишите свой json object writer (object to JSON string) аналогичный gson на основе javax.json.
     //
-    //Поддержите:
-    //- массивы объектов и примитивных типов
-    //- коллекции из стандартный библиотеки.
+    // Поддержите:
+    // - массивы объектов и примитивных типов
+    // - коллекции из стандартный библиотеки.
 
-    // org.glassfish.json.MapUtil.handle
-    private static Set<Class> TERMINAL_CLASSES = Set.of(
-            BigDecimal.class,
-            BigInteger.class,
-            Boolean.class,
-            Double.class,
-            Integer.class,
-            Long.class,
-            String.class
-    );
     private boolean publicOnly = false;
     private boolean serializeInherited = false;
 
@@ -45,6 +32,17 @@ public class MyMapper {
 
     public MyMapper() {
     }
+
+    private BiConsumer<Object, JsonArrayBuilder> collectionMapper = (Object input, JsonArrayBuilder builder) -> {
+        ((Collection) input).forEach(o -> processElement(o, builder));
+    };
+
+    private BiConsumer<Object, JsonArrayBuilder> arrayMapper = (Object input, JsonArrayBuilder builder) -> {
+        for (int i = 0; i < Array.getLength(input); i++) {
+            Object o = Array.get(input, i);
+            processElement(o, builder);
+        }
+    };
 
     private BiConsumer<Object, JsonObjectBuilder> defaultObjectMapper = (
             Object inputObject,
@@ -59,27 +57,23 @@ public class MyMapper {
             if (publicOnly && Modifier.isPrivate(f.getModifiers())) {
                 continue;
             }
-            builder.add(f.getName(), valueFromField(f, inputObject));
+            builder.add(f.getName(), processObject(getFieldValue(inputObject, f)));
         }
-    };
-
-    private BiConsumer<Object, JsonArrayBuilder> defaultArrayMapper = (
-            Object inputObject,
-            JsonArrayBuilder builder
-    ) -> {
-        List<?> streamOf = TypeHelper.getStreamOf(inputObject).collect(Collectors.toList());
-        streamOf.forEach(o -> process(o, builder));
     };
 
     private Function<Object, JsonValue> defaultValueConverter = (Object input) -> {
 
-        if (TypeHelper.isArrayOrCollection(input)) {
+        if (TypeHelper.isArray(input)) {
             JsonArrayBuilder arrayBuilder = Json.createArrayBuilder();
-            defaultArrayMapper.accept(input, arrayBuilder);
+            arrayMapper.accept(input, arrayBuilder);
+            return arrayBuilder.build();
+        } else if (TypeHelper.isCollection(input)) {
+            JsonArrayBuilder arrayBuilder = Json.createArrayBuilder();
+            collectionMapper.accept(input, arrayBuilder);
             return arrayBuilder.build();
         } else {
             JsonObjectBuilder objectBuilder = Json.createObjectBuilder();
-            process(input, objectBuilder);
+            defaultObjectMapper.accept(input, objectBuilder);
             return objectBuilder.build();
         }
     };
@@ -92,45 +86,41 @@ public class MyMapper {
      */
     public String convert(Object inputObject) {
         Object rootObject = internalConvert(inputObject);
-        return TypeHelper.TERMINAL_CONVERSION_MAP.getOrDefault(TypeHelper.getTerminalClass(rootObject), (o -> {
+        return TypeHelper.getOutputValueHandler(rootObject, o -> {
             throw new RuntimeException(String.format(
-                    "Serializer must return nullable builder, returned %s of class %s",
+                    "Serializer must return nullable builder or pure JsonValue, returned %s of class %s",
                     rootObject,
                     rootObject.getClass()
             ));
-        })).apply(rootObject);
-    }
-
-    private JsonValue valueFromField(Field f, Object inputObject) {
-        return toValue(getFieldValue(inputObject, f));
+        }).apply(rootObject);
     }
 
     private Object internalConvert(Object inputObject) {
         if (inputObject == null) {
             return null;
-        } else if (TypeHelper.isArrayOrCollection(inputObject)) {
+        } else if (TypeHelper.isByteOrCharArray(inputObject)) {
+            return TypeHelper.collapseArray(inputObject);
+        } else if (TypeHelper.isPureValue(inputObject)) {
+            return processObject(inputObject);
+        } else if (TypeHelper.isArray(inputObject)) {
             JsonArrayBuilder rootBuilder = Json.createArrayBuilder();
-            defaultArrayMapper.accept(inputObject, rootBuilder);
+            arrayMapper.accept(inputObject, rootBuilder);
+            return rootBuilder;
+        } else if (TypeHelper.isCollection(inputObject)) {
+            JsonArrayBuilder rootBuilder = Json.createArrayBuilder();
+            collectionMapper.accept(inputObject, rootBuilder);
             return rootBuilder;
         } else {
             JsonObjectBuilder objectBuilder = Json.createObjectBuilder();
-            process(inputObject, objectBuilder);
+            defaultObjectMapper.accept(inputObject, objectBuilder);
             return objectBuilder;
         }
     }
 
-    private JsonValue toValue(Object parsedValue) {
-
-        return TypeHelper.TERMINAL_VALUES_HANDLER_MAP.getOrDefault(
-                TypeHelper.getSupportedClass(parsedValue),
-                defaultValueConverter
-        ).apply(parsedValue);
-    }
-
-    private void process(Object inputObject, JsonArrayBuilder arrayBuilder) {
+    private void processElement(Object inputObject, JsonArrayBuilder arrayBuilder) {
         Class<?> supportedClass = TypeHelper.getSupportedClass(inputObject);
-        if (TERMINAL_CLASSES.contains(supportedClass)) {
-            arrayBuilder.add(toValue(inputObject));
+        if (TypeHelper.isTerminalClass(supportedClass)) {
+            arrayBuilder.add(processObject(inputObject));
         } else {
             JsonObjectBuilder objectBuilder = Json.createObjectBuilder();
             defaultObjectMapper.accept(inputObject, objectBuilder);
@@ -138,8 +128,10 @@ public class MyMapper {
         }
     }
 
-    private void process(Object inputObject, JsonObjectBuilder objectBuilder) {
-        defaultObjectMapper.accept(inputObject, objectBuilder);
+    private JsonValue processObject(Object parsedValue) {
+        return TypeHelper.getValueHandler(
+                TypeHelper.getSupportedClass(parsedValue), defaultValueConverter
+        ).apply(parsedValue);
     }
 
     private Object getFieldValue(Object o, Field f) {

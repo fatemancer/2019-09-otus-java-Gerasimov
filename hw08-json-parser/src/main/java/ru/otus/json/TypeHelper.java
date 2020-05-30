@@ -6,25 +6,22 @@ import javax.json.JsonObjectBuilder;
 import javax.json.JsonValue;
 import java.math.BigDecimal;
 import java.math.BigInteger;
-import java.nio.ByteBuffer;
-import java.nio.CharBuffer;
-import java.nio.IntBuffer;
-import java.util.Arrays;
 import java.util.Base64;
 import java.util.Collection;
 import java.util.Map;
+import java.util.Set;
 import java.util.function.Function;
-import java.util.stream.Stream;
 
 class TypeHelper {
 
-    static final Map<Class, Function<Object, String>> TERMINAL_CONVERSION_MAP = Map.of(
+    private static final Map<Class<?>, Function<Object, String>> TERMINAL_CONVERSION_MAP = Map.of(
             NullClass.class, (o) -> JsonValue.NULL.toString(),
+            JsonValue.class, (o) -> ((JsonValue) o).toString(),
             JsonArrayBuilder.class, (o) -> ((JsonArrayBuilder) o).build().toString(),
             JsonObjectBuilder.class, (o) -> ((JsonObjectBuilder) o).build().toString()
     );
 
-    static final Map<Class, Function<Object, JsonValue>> TERMINAL_VALUES_HANDLER_MAP = Map.ofEntries(
+    private static final Map<Class<?>, Function<Object, JsonValue>> TERMINAL_VALUES_HANDLER_MAP = Map.ofEntries(
             Map.entry(NullClass.class, (o) -> JsonValue.NULL),
             Map.entry(Long.class, (o) -> Json.createValue((long) o)),
             Map.entry(Integer.class, (o) -> Json.createValue((int) o)),
@@ -35,41 +32,43 @@ class TypeHelper {
             Map.entry(String.class, (o) -> Json.createValue((String) o)),
             Map.entry(Character.class, (o) -> Json.createValue(((Character) o).toString()) ),
             Map.entry(Float.class, (o) -> Json.createValue(((Float) o).doubleValue())),
+            Map.entry(Byte.class, (o) -> Json.createValue(((Byte) o).intValue())),
+            Map.entry(Short.class, (o) -> Json.createValue(((Short) o).intValue())),
             Map.entry(Collapsable.class, TypeHelper::collapseArray)
     );
 
-    @SuppressWarnings("unchecked")
-    static Stream<?> getStreamOf(Object inputObject) {
+    private static Set<Class<?>> TERMINAL_CLASSES = Set.of(
+            BigDecimal.class,
+            BigInteger.class,
+            Boolean.class,
+            Double.class,
+            Integer.class,
+            Long.class,
+            String.class,
+            Byte.class,
+            Short.class,
+            Float.class,
+            Character.class
+    );
 
-        if (inputObject instanceof Collection) {
-            return ((Collection<Object>) inputObject).stream();
-        }
+    static Function<Object, String> getOutputValueHandler(
+            Object rootObject,
+            Function<Object, String> missingStrategyHandler
+    ) {
+        return TypeHelper.TERMINAL_CONVERSION_MAP.getOrDefault(
+                TypeHelper.getTerminalClass(rootObject),
+                missingStrategyHandler
+        );
+    }
 
-        if (inputObject instanceof int[]) {
-            return Arrays.stream((int[]) inputObject).boxed();
-        }
-        if (inputObject instanceof long[]) {
-            return Arrays.stream((long[]) inputObject).boxed();
-        }
-        if (inputObject instanceof char[]) {
-            char[] charArray = (char[]) inputObject;
-            return CharBuffer.wrap(charArray).chars().boxed();
-        }
-        if (inputObject instanceof byte[]) {
-            byte[] byteArray = (byte[]) inputObject;
-            IntBuffer intBuffer = ByteBuffer.wrap(byteArray).asIntBuffer();
-            int[] intArray = new int[intBuffer.capacity()];
-            intBuffer.get(intArray);
-            return Arrays.stream(intArray).boxed();
-        }
-        if (inputObject instanceof float[]) {
-            float[] floatArray = (float[]) inputObject;
-            return Stream.of(floatArray);
-        }
-        if (inputObject instanceof double[]) {
-            return Arrays.stream((double[]) inputObject).boxed();
-        }
-        return Arrays.stream((Object[]) inputObject);
+    static Function<Object, JsonValue> getValueHandler(
+            Class<?> object,
+            Function<Object, JsonValue> missingStrategyHandler
+    ) {
+        return TypeHelper.TERMINAL_VALUES_HANDLER_MAP.getOrDefault(
+                object,
+                missingStrategyHandler
+        );
     }
 
     static Class<?> getSupportedClass(Object v) {
@@ -86,23 +85,19 @@ class TypeHelper {
         }
     }
 
-    private static boolean isCollection(Object o) {
+    static boolean isCollection(Object o) {
         return Collection.class.isAssignableFrom(o.getClass());
     }
 
-    private static boolean isArray(Object o) {
+    static boolean isArray(Object o) {
         return o.getClass().isArray();
     }
 
-    static boolean isArrayOrCollection(Object inputObject) {
-        return isArray(inputObject) || isCollection(inputObject);
-    }
-
-    private static boolean isByteOrCharArray(Object parsedValue) {
+    static boolean isByteOrCharArray(Object parsedValue) {
         return parsedValue instanceof char[] || parsedValue instanceof byte[];
     }
 
-    private static JsonValue collapseArray(Object parsedValue) {
+    static JsonValue collapseArray(Object parsedValue) {
         // поведение консистентно с Jackson
         if (parsedValue instanceof char[]) {
             // https://www.javadoc.io/doc/com.fasterxml.jackson.core/jackson-databind/2.8
@@ -126,9 +121,19 @@ class TypeHelper {
         }
         if (JsonObjectBuilder.class.isAssignableFrom(terminalObject.getClass())) {
             return JsonObjectBuilder.class;
-        } else {
-            return terminalObject.getClass();
         }
+        if (JsonValue.class.isAssignableFrom(terminalObject.getClass())) {
+            return JsonValue.class;
+        }
+        return terminalObject.getClass();
+    }
+
+    static boolean isPureValue(Object inputObject) {
+        return TERMINAL_CLASSES.stream().anyMatch(cl -> cl.isAssignableFrom(inputObject.getClass()));
+    }
+
+    static boolean isTerminalClass(Class<?> someClass) {
+        return TERMINAL_CLASSES.contains(someClass);
     }
 
     // маркерные классы для списка обработчиков выше
