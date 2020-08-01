@@ -7,27 +7,25 @@ import lombok.extern.slf4j.Slf4j;
 import java.util.HashMap;
 
 @Slf4j
-public class SequenceHandler {
+class SequenceHandler {
 
     private final StateHolder stateHolder = new StateHolder();
-    private final int start;
     private final int end;
     private final int threads;
 
-    public SequenceHandler(int start, int end, int threads) {
-        this.start = start;
+    SequenceHandler(int start, int end, int threads) {
         this.end = end;
         this.threads = threads;
         stateHolder.setLastValue(start);
     }
 
-    public void printSequence() {
+    void printSequence() {
         for (int i = 0; i < threads; i++) {
             new Thread(provideSequencePrinter(i, threads, end, stateHolder)).start();
         }
     }
 
-    Runnable provideSequencePrinter(int threadNumber, int maxThreads, int end, StateHolder monitor) {
+    private Runnable provideSequencePrinter(int threadNumber, int maxThreads, int end, StateHolder monitor) {
         return () -> {
             log.debug("Thread {} started", threadNumber);
             while (!Thread.currentThread().isInterrupted()) {
@@ -76,7 +74,7 @@ public class SequenceHandler {
     }
 
     @Data
-    class StateHolder {
+    static class StateHolder {
         volatile HashMap<Integer, Integer> processedThreads = new HashMap<>();
         volatile boolean swapped = false;
         volatile int lastValue;
