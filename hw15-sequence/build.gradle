@@ -1,0 +1,13 @@
+description = 'hw15-sequence'
+
+dependencies {
+    implementation 'com.google.guava:guava'
+    implementation 'org.apache.commons:commons-lang3:3.10'
+    implementation 'org.slf4j:slf4j-api'
+    implementation 'org.slf4j:slf4j-simple'
+    implementation 'org.junit.jupiter:junit-jupiter-api'
+    implementation 'org.assertj:assertj-core:3.15.0'
+    implementation 'org.glassfish:jakarta.json:1.1.6'
+    testRuntime 'org.junit.jupiter:junit-jupiter'
+    implementation 'org.projectlombok:lombok:1.18.12'
+}
